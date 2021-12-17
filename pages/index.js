@@ -1,82 +1,171 @@
-import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import Layout from '../components/layout'
+import useStyles from '../utils/styles'
+import Grid from '@material-ui/core/Grid'
+import Container from '@material-ui/core/Container'
+import React, { useState } from 'react';
+import { Button, TextField, Typography } from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
+import Lock from '../assets/ios-lock.svg'
+import Exchange from '../assets/advert.svg'
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import { motion, AnimatePresence } from "framer-motion";
+// import useSwr from 'swr'
 
-export default function Home() {
+
+
+
+
+
+const Form = () => {
+  const classes = useStyles();
+  const router = useRouter()
+  // create state variables for each input
+  const [phone, setPhone] = useState('');
+  const [errorText, setErrorText] = useState('');
+
+  if (typeof window !== 'undefined') {
+    // Perform localStorage action
+    localStorage.setItem("phone", phone)
+  }
+  
+
+ 
+
+  const handleAuthentication = async (e) => {
+    e.preventDefault();
+    console.log(phone);
+    const response = await fetch('https://xchange-ng.herokuapp.com/api/v1/auth/user', {method:'POST',
+      body:JSON.stringify({
+        phoneNumber: phone,
+        countryCode:"NG",
+        mode:"phone"
+      }),
+      headers:{
+       'Content-Type': 'application/json'
+      }
+    })
+    const data = await response.json()
+      router.push("/verification")
+
+    console.log('Data found is ', data);
+  };
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <>
+      <Box
+        m={10}
+        p={6}
+        sx={{
+          width: {
+            xs: 404,
+            sm: 404,
+          },
+          height: 395,
+          borderRadius: 8,
+          boxShadow: "0px 10px 15px #2AFEA226",
+          typography: 'subtitle2'
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+        }}
+        className='bg-primary'
+      >
+        <div sx={{ p: 4 }}>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
+          <h1 className="text-2xl text-secondary font-mono mb-16">Sign In</h1>
+          <form className={classes.root}>
 
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
+            <TextField
+              label="Phone No:"
+              id="standard-basic"
+              variant="standard"
+              required
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', style: { fontFamily: 'Noto Sans', color: '#044566' } }}
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              InputProps={{
+                classes: {
+                  underline: classes.underline
+                },
+                endAdornment: (
+                  <InputAdornment position="start">
+                    <Image src={Lock} />
+                  </InputAdornment>
+                )
 
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+              }}
+            />
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            <div>
+              
+                <motion.button
+                  whileHover={{ scale: 0.9 }}
+                  whileTap={{ scale: 1.1 }}
+                  transition={{ duration: 1, type: "spring" }}>
+                  <Button type="submit" variant="contained" onClick = {handleAuthentication} disableElevation={true} className="bg-tertiary h-12  text-secondary  mt-24" >
+                    LOG IN
+                  </Button>
+                </motion.button>
+             
+            </div>
+          </form>
         </div>
-      </main>
+      </Box>
+    </>
 
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  );
+};
+
+
+const ExchangeInfo = () => {
+  return (
+
+    <Grid container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      style={{ minHeight: '80vh' }}>
+      <AnimatePresence initial={false} >
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ duration: 0.5, type: "tween" }}
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
-    </div>
+          <Image src={Exchange}
+            alt="Picture of Exchange"
+
+          />
+        </motion.button>
+      </AnimatePresence>
+      <div sx={{ padding: 10 }}>
+        <Typography variant="h4" color="#044566" className='animate-fade-up' sx={{ letterSpacing: 3, paddingTop: 5 }}>
+          <p className='font-bold'>Fast & Easy <br />Cross Border Exchange</p>
+        </Typography>
+        <Typography variant="h6" color="#044566" sx={{ letterSpacing: 0.5, fontWeight: 'lighter' }}>
+          <p className=''>Send and receive money directly in your Nigeria <br /> bank account from the US</p>
+        </Typography>
+      </div>
+    </Grid>
+  )
+}
+
+
+export default function  Home() {
+  return (
+    <Layout>
+      <Container maxWidth="xl" className="m-4" >
+        <Grid container>
+          <Grid item lg={4} xs={12}>
+            <Form />
+          </Grid>
+          <Grid item lg={8} xs={12}  >
+            <ExchangeInfo />
+          </Grid>
+        </Grid>
+
+      </Container>
+    </Layout>
   )
 }
